@@ -1,0 +1,1108 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>青途AI</title>
+<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+    --c1:#FEF8F2;--c2:#FDF0E3;--c3:#FBE3CA;--c4:#F8D1A8;
+    --w3:#E8A85E;--w4:#D4782A;--w5:#C06A20;--w6:#A85A18;
+    --b2:#C4B09A;--b3:#8B7355;--b6:#3D2B1A;--b8:#2C1810;
+    --g4:#7A9E5A;--g5:#5E8240;--a4:#C8913C;
+    --r:14px;--rs:10px;
+    --f:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    --shadow-sm:0 2px 6px rgba(60,40,0,0.08);
+    --shadow-md:0 4px 12px rgba(60,40,0,0.12);
+    --shadow-lg:0 8px 24px rgba(60,40,0,0.15);
+    --transition-all:all 0.24s ease;
+}
+html,body{height:100%;font-family:var(--f);background:var(--c1);color:var(--b8);line-height:1.65}
+.app{display:flex;height:100%;width:100%;margin:0 auto;background:#fffcf9;box-shadow:var(--shadow-lg);overflow:hidden}
+.sdbr{
+    width:72px;background:var(--b6);display:flex;flex-direction:column;flex-shrink:0;
+    z-index:10;padding:14px 0 8px
+}
+.sdbr .ml{
+    width:32px;height:32px;border-radius:10px;background:var(--w4);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+    transition:var(--transition-all);
+}
+.sdbr .ml:hover{transform:scale(1.08);box-shadow:0 0 10px rgba(212,120,42,0.4)}
+.sdbr .ml svg{width:20px;height:20px}
+.sbtn{
+    width:100%;padding:10px 0;border:none;background:transparent;
+    color:rgba(255,235,215,0.4);cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    transition:var(--transition-all);position:relative;border-left:3px solid transparent
+}
+.sbtn:hover{background:rgba(255,235,215,0.08);color:rgba(255,235,215,0.9)}
+.sbtn:active{transform:scale(0.96)}
+.sbtn .ic{font-size:18px;line-height:1}
+.sbtn .lb{font-size:9px;opacity:0.55}
+.sbtn.at{background:rgba(255,235,215,0.15);color:#fff;border-left-color:var(--w4)}
+.sbtn.at .lb{opacity:1}
+.sbtn.at::before{
+    content:"";position:absolute;left:-3px;top:50%;transform:translateY(-50%);
+    width:3px;height:36px;background:var(--w4);border-radius:0 3px 3px 0
+}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden;}
+.hdr{
+    background:linear-gradient(135deg,var(--w4),var(--w6));color:#fff;
+    padding:12px 20px 10px;display:flex;align-items:center;gap:12px;flex-shrink:0;
+    transition:background 0.3s ease, var(--transition-all);
+    box-shadow:var(--shadow-sm);
+}
+.hdr .lw{
+    width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.15);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:var(--transition-all);
+}
+.hdr .lw:hover{background:rgba(255,255,255,0.25);transform:rotate(5deg)}
+.hdr .lw svg{width:24px;height:24px}
+.hdr .ht{flex:1}
+.hdr h1{font-size:16px;font-weight:700}
+.hdr .sub{font-size:11px;opacity:0.82}
+.hdr .pt{
+    font-size:12px;opacity:0.75;background:rgba(255,255,255,0.12);
+    padding:3px 10px;border-radius:20px;transition:var(--transition-all);
+}
+.hdr .pt:hover{background:rgba(255,255,255,0.2)}
+.ct{flex:1;display:flex;flex-direction:column;min-height:0;}
+.hd,.tp.hd{display:none}
+.sb{
+    display:flex;gap:3px;padding:8px 16px 6px;background:var(--c1);
+    border-bottom:1px solid var(--c2);flex-shrink:0;overflow-x:auto
+}
+.sd{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    font-size:11px;color:var(--b2);position:relative;
+    cursor:pointer;transition:var(--transition-all);
+}
+.sd.active .ci{background:var(--w4);color:#fff}
+.sd .ci{
+    width:24px;height:24px;border-radius:50%;background:var(--c2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:600;color:var(--b2);
+    transition:var(--transition-all);
+}
+.sd:hover .ci{background:var(--c4)}
+.sd .lb{font-size:9px;overflow:hidden;text-overflow:ellipsis;max-width:58px;text-align:center}
+#stepGuide{
+    flex-shrink:0;padding:6px 20px;background:#FDF0E3;
+    border-bottom:1px solid #FBE3CA;font-size:11.5px;
+    line-height:1.5;color:#2C1810;transition:background 0.3s ease;
+}
+.ch{
+    flex:1;overflow-y:auto;padding:12px 20px 20px;
+    display:flex;flex-direction:column;gap:10px;background:#fffcf9;
+    min-height:0;
+}
+.msg{display:flex;gap:10px;max-width:88%;animation:fu 0.35s ease}
+.msg.bt{align-self:flex-start}
+.msg.us{align-self:flex-end;flex-direction:row-reverse}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg .av{
+    width:28px;height:28px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:4px;
+    transition:var(--transition-all);
+}
+.msg .av:hover{transform:scale(1.1)}
+.msg.bt .av{background:var(--c2)}
+.msg.us .av{background:var(--c3)}
+.msg .bub{
+    padding:10px 16px;border-radius:var(--rs);font-size:14px;
+    line-height:1.7;word-break:break-word;transition:var(--transition-all);
+}
+.msg.bt .bub{background:var(--c1);border:1px solid var(--c2);border-top-left-radius:3px;color:var(--b8)}
+.msg.bt .bub:hover{box-shadow:var(--shadow-sm)}
+.msg.us .bub{background:var(--w4);color:#fff;border-top-right-radius:3px;transition:background 0.3s ease}
+.msg.us .bub:hover{background:var(--w5);box-shadow:var(--shadow-sm)}
+.ia{
+    padding:6px 20px 10px;border-top:1px solid var(--c2);background:#fffcf9;
+    flex-shrink:0;display:flex;gap:10px;align-items:flex-end;
+    z-index:5;
+}
+.ia textarea{
+    flex:1;border:1.5px solid var(--c3);border-radius:var(--rs);
+    padding:8px 14px;font-size:14px;font-family:var(--f);
+    resize:none;outline:none;min-height:38px;max-height:110px;
+    background:var(--c1);color:var(--b8);transition:border-color 0.3s ease, box-shadow 0.2s;
+}
+.ia textarea:focus{border-color:var(--w4);background:#fffcf9;box-shadow:0 0 0 3px rgba(212,120,42,0.15)}
+.ia .snd{
+    width:40px;height:40px;border-radius:50%;border:none;
+    background:var(--w4);color:#fff;font-size:18px;
+    cursor:pointer;transition:all 0.2s;flex-shrink:0
+}
+.ia .snd:hover{background:var(--w5);transform:scale(1.04);box-shadow:var(--shadow-sm)}
+.ia .snd:active{transform:scale(0.96)}
+.ia .snd:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bc{
+    background:#FDF6ED;border:1.5px solid var(--a4);border-radius:var(--rs);
+    padding:12px 16px;margin:4px 0;font-size:14px
+}
+.bc .tag{
+    display:inline-block;background:var(--a4);color:#fff;
+    font-size:12px;font-weight:600;padding:2px 10px;border-radius:4px
+}
+.ac{
+    background:#F2F7ED;border:1.5px solid var(--g4);border-radius:var(--rs);
+    padding:12px 16px;margin:6px 0
+}
+.ac .tt{font-weight:700;color:var(--g5);font-size:14px;margin-bottom:6px}
+.ac .it{
+    padding:4px 0;font-size:13px;color:var(--b8);
+    display:flex;align-items:flex-start;gap:6px;
+    border-bottom:1px dashed rgba(94,130,0,0.12)
+}
+.ac .it:last-child{border-bottom:none}
+.tp{
+    flex:1;overflow-y:auto;padding:20px 24px 16px;
+    display:flex;flex-direction:column;gap:16px;
+    min-height:0;
+}
+.tp h2{font-size:18px;color:var(--b8);font-weight:700}
+.tp .desc{font-size:13.5px;color:var(--b3);line-height:1.7}
+.tp .tl{
+    font-size:11px;color:var(--b2);text-align:right;
+    border-top:1px solid var(--c2);padding-top:8px
+}
+.cg{display:flex;flex-direction:column;gap:10px}
+.cg .cd{
+    background:var(--c1);border-radius:var(--rs);padding:14px 16px;
+    border-left:3px solid var(--c4);transition:border-color 0.3s ease, transform 0.2s, box-shadow 0.2s;
+}
+.cg .cd:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);border-left-color:var(--w4)}
+.cg .cd .ctt{
+    font-weight:700;color:var(--w5);font-size:14px;
+    margin-bottom:4px;display:flex;align-items:center;gap:8px;transition:color 0.3s ease
+}
+.cg .cd .cdd{font-size:13px;color:var(--b3)}
+.cg .cd .csc{font-size:12px;color:var(--w3);margin-top:4px;transition:color 0.3s ease}
+.bb{
+    background:var(--c1);border-radius:var(--r);padding:20px;
+    text-align:center;border:1.5px solid var(--c2);transition:var(--transition-all);
+}
+.bb:hover{box-shadow:var(--shadow-md)}
+.bb .bcir{
+    width:90px;height:90px;border-radius:50%;margin:10px auto;
+    background:var(--w4);opacity:0.15;transition:all 0.3s
+}
+.bb .bcir.ih{opacity:0.35;transform:scale(1.15)}
+.bb .bcir.hd{opacity:0.55;transform:scale(1)}
+.bb .bcir.ex{opacity:0.2;transform:scale(0.8)}
+.bb .bp{font-size:20px;font-weight:700;color:var(--w5);margin:10px 0 4px}
+.bb .bst{
+    padding:8px 24px;border:none;border-radius:20px;
+    background:var(--w4);color:#fff;font-size:14px;
+    cursor:pointer;font-family:inherit;transition:var(--transition-all);
+}
+.bb .bst:hover{background:var(--w5);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.bb .bst:active{transform:translateY(0)}
+.bb .bst:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.br{display:flex;gap:12px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.br .bd{
+    width:52px;height:52px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-direction:column;gap:2px;transition:var(--transition-all);
+}
+.br .bd.lk{background:var(--c1);border:2px dashed var(--c3);filter:grayscale(0.6)}
+.br .bd.lk:hover{filter:grayscale(0.3)}
+.br .bd .bl{font-size:8px;color:var(--b2)}
+.bot{flex-shrink:0;padding:0 20px}
+.disc{
+    padding:4px 10px;background:transparent;border-radius:var(--rs);
+    font-size:10.5px;color:var(--b3);line-height:1.5;
+    margin-bottom:2px;border-top:1px solid var(--c2)
+}
+.disc strong{color:var(--w5)}
+.cred{text-align:center;font-size:9.5px;color:var(--b2);padding:2px 0 4px}
+.subtab{margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;}
+.subtab button{
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:12px;
+    background:#fff;
+    color:#3D2B1A;
+    border:1.5px solid #E8D5C0;
+    transition:var(--transition-all);
+}
+.subtab button:hover{background:var(--c2)}
+.subtab button:active{transform:scale(0.96)}
+/* 子标签高亮样式 */
+.subtab button.active{
+    background:linear-gradient(135deg,#D4782A,#E89440);
+    color:#fff;
+    border-color:transparent;
+    box-shadow:0 2px 8px rgba(212,120,42,0.2);
+}
+.growth-sub{display:none;margin-top:10px;}
+.panel{padding:16px;border-radius:12px;background:#fff;margin:8px 0;box-shadow:var(--shadow-sm);transition:var(--transition-all)}
+.panel:hover{box-shadow:var(--shadow-md)}
+#heatmapBox,#trapChartBox{
+    width:100%;
+    height:260px;
+    min-height:220px;
+    overflow:hidden;
+    border-radius:8px;
+    background:#fff;
+}
+#cool_modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.mbti-btn,[data-i]{
+    transition:var(--transition-all);
+}
+.mbti-btn:hover,[data-i]:hover{
+    background:var(--c2) !important;
+    border-color:var(--c4) !important;
+}
+.mbti-btn:active,[data-i]:active{transform:scale(0.97)}
+@media(max-width:640px){
+    .sdbr{width:62px;padding:12px 0}
+    .sdbr .ml{width:28px;height:28px}
+    .sdbr .ml svg{width:16px;height:16px}
+    .sbtn{padding:9px 0}
+    .sbtn .ic{font-size:16px}
+    .sbtn .lb{font-size:8.5px}
+    .app{max-width:100%}
+    .hdr{padding:10px 12px}
+    .hdr .lw{width:34px;height:34px}
+    .hdr .lw svg{width:20px;height:20px}
+    .tp{padding:14px 12px}
+    .ch{padding:10px 12px 20px}
+    .ia{padding:4px 12px 8px}
+    .msg{max-width:95%}
+    .sb{padding:6px 8px}
+    .sd .ci{width:22px;height:22px;font-size:9}
+    .sd .lb{max-width:30px;font-size:8}
+    .bb .bcir{width:70px;height:70px}
+    .cg .cd{padding:12px 14px}
+    #heatmapBox{height:220px}
+    #trapChartBox{height:200px}
+}
+</style>
+</head>
+<body>
+<div id="welcomeModal" style="position:fixed;inset:0;z-index:9998;background:rgba(44,24,16,0.45);display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backdrop-filter:blur(3px)">
+  <div style="background:#fffcf9;border-radius:16px;padding:32px 28px 24px;width:480px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:36px;margin-bottom:8px">🌱</div>
+      <div style="font-size:20px;font-weight:700;color:#2C1810;margin-bottom:4px">欢迎来到青途 AI</div>
+      <div style="font-size:13px;color:#8B7355">衔接期认知重构助手 · 基于CBT认知行为疗法</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">💬</span>
+        <div>
+          <div style="font-weight:600;color:#2C1810;font-size:14px">5步CBT认知重构</div>
+          <div style="font-size:12.5px;color:#8B7355">事件梳理→情绪标注→信念识别→反思引导→重构方案，科学拆解负面情绪</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">📊</span>
+        <div>
+          <div style="font-weight:600;color:#2C1810;font-size:14px">大学适应力测评</div>
+          <div style="font-size:12.5px;color:#8B7355">四大维度评估入学准备度，给出针对性提升建议</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">🧰</span>
+        <div>
+          <div style="font-weight:600;color:#2C1810;font-size:14px">实用心理工具箱</div>
+          <div style="font-size:12.5px;color:#8B7355">478呼吸法、情绪日记、正念练习，随时平复情绪</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">🧩</span>
+        <div>
+          <div style="font-weight:600;color:#2C1810;font-size:14px">MBTI性格探索</div>
+          <div style="font-size:12.5px;color:#8B7355">12道简化题了解性格倾向，辅助大学社交与规划</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:18px">📁</span>
+        <div>
+          <div style="font-weight:600;color:#2C1810;font-size:14px">成长档案记录</div>
+          <div style="font-size:12.5px;color:#8B7355">自动保存每次训练，见证你的情绪成长轨迹</div>
+        </div>
+      </div>
+    </div>
+    <button onclick="closeWelcome()" style="width:100%;padding:12px;border:none;border-radius:12px;background:#D4782A;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.24s">立即体验</button>
+    <div style="font-size:11px;color:#C4B09A;text-align:center;margin-top:12px">本工具为心理科普自助工具，不替代专业心理咨询</div>
+  </div>
+</div>
+<div id="cool_modal">
+  <div style="background:white;padding:24px;border-radius:16px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2)">
+    <h3>⚠️ 当前情绪过高，进入强制紧急冷却</h3>
+    <div id="cool_timer" style="font-size:36px;margin:20px 0;">准备开始478呼吸</div>
+    <p>完成一轮478呼吸后才可继续对话</p>
+  </div>
+</div>
+<div class="app">
+  <div class="sdbr">
+    <div class="ml">
+      <svg viewBox="0 0 64 64" fill="none">
+        <path d="M10 50 L22 26 L34 50" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M26 50 L38 20 L50 50" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="46" cy="22" r="9" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="2.2"/>
+        <circle cx="46" cy="23" r="4.5" fill="rgba(255,255,0,0.5)"/>
+        <path d="M16 50 Q24 44 30 38 Q36 32 34 26" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <path d="M4 54 Q32 46 60 54" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+      </svg>
+    </div>
+    <button class="sbtn at" data-t="chat" onclick="swT('chat')">
+      <span class="ic">💬</span><span class="lb">咨询对话</span>
+    </button>
+    <button class="sbtn" data-t="assess" onclick="swT('assess')">
+      <span class="ic">📊</span><span class="lb">适应力测评</span>
+    </button>
+    <button class="sbtn" data-t="toolbox" onclick="swT('toolbox')">
+      <span class="ic">🧰</span><span class="lb">心理工具箱</span>
+    </button>
+    <button class="sbtn" data-t="mbti" onclick="swT('mbti')">
+      <span class="ic">🧩</span><span class="lb">MBTI性格</span>
+    </button>
+    <button class="sbtn" data-t="archive" onclick="swT('archive')">
+      <span class="ic">📁</span><span class="lb">成长档案</span>
+    </button>
+  </div>
+  <div class="main">
+    <div class="hdr">
+      <div class="lw">
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M10 50 L22 26 L34 50" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M26 50 L38 20 L50 50" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="46" cy="22" r="9" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="2.2"/>
+          <circle cx="46" cy="23" r="4.5" fill="rgba(255,255,0,0.5)"/>
+          <path d="M16 50 Q24 44 30 38 Q36 32 34 26" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.5"/>
+          <path d="M4 54 Q32 46 60 54" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="ht">
+        <h1>青途 AI</h1>
+        <div class="sub">衔接期认知重构助手 · CBT</div>
+      </div>
+      <span class="pt" id="pt">💬 咨询对话</span>
+    </div>
+    <div class="ct" id="tchat">
+      <div class="sb" id="sb">
+        <div class="sd"><div class="ci">1</div><span class="lb">事件梳理</span></div>
+        <div class="sd"><div class="ci">2</div><span class="lb">情绪标注</span></div>
+        <div class="sd"><div class="ci">3</div><span class="lb">信念识别</span></div>
+        <div class="sd"><div class="ci">4</div><span class="lb">反思引导</span></div>
+        <div class="sd"><div class="ci">5</div><span class="lb">重构方案</span></div>
+      </div>
+      <div id="stepGuide">
+        <div id="stepGuideText"></div>
+      </div>
+      <div class="ch" id="ch"></div>
+      <div class="bot">
+        <div class="disc">
+          <strong>📋 心理科普自助工具</strong> · 不提供医疗诊断 · 不能替代专业心理咨询<br>
+          如出现自伤、自杀等严重情绪危机，请立即拨打 <strong>12355</strong> 青少年服务热线
+        </div>
+        <div class="cred">本工具干预流程基于CBT人工设计，AI仅作为交互执行载体</div>
+      </div>
+      <div class="ia">
+        <textarea id="inp" rows="1" placeholder="请描述具体事件"></textarea>
+        <button class="snd" id="snd">➤</button>
+      </div>
+    </div>
+    <div class="tp hd" id="tassess">
+      <div>
+        <h2>📊 适应力测评</h2>
+        <p class="desc">根据生涯适应力理论（Career Adaptability），从四个核心维度评估你进入大学前的准备程度。每题选择最符合你的选项。</p>
+      </div>
+      <div class="cg" id="aq"></div>
+      <div id="assessResult" style="display:none;background:#F2F7ED;border:1.5px solid #7A9E5A;border-radius:10px;padding:16px;margin-top:4px"></div>
+      <button id="assessSubmit" onclick="submitAssess()" style="padding:10px 28px;border:none;border-radius:20px;background:#D4782A;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;align-self:center;margin-top:4px;transition:all 0.24s">提交测评</button>
+      <div class="tl">设计依据：Savickas 生涯适应力理论</div>
+    </div>
+    <div class="tp hd" id="ttoolbox">
+      <div>
+        <h2>🧰 心理工具箱</h2>
+        <p class="desc">即时平复 · 日常觉察 · 思维矫正。</p>
+      </div>
+      <div class="cg" id="tc"></div>
+      <div class="tl">设计依据：CBT 自助技术 · 正念减压（MBSR）</div>
+    </div>
+    <div class="tp hd" id="tmbti">
+      <div>
+        <h2>🧩 MBTI性格探索</h2>
+        <p class="desc">通过 12 道简化题，初步了解你的性格倾向。每题从两个选项中选一个更符合你的，测试结果仅供自我探索参考。</p>
+      </div>
+      <div class="cg" id="mbtiq"></div>
+      <div id="mbtiResult" style="display:none;background:#F2F7ED;border:1.5px solid #7A9E5A;border-radius:10px;padding:20px;margin-top:4px"></div>
+      <button id="mbtiSubmit" onclick="submitMBTI()" style="padding:10px 28px;border:none;border-radius:20px;background:#D4782A;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;align-self:center;margin-top:4px;transition:all 0.24s">提交测评</button>
+      <div class="tl">设计依据：Myers-Briggs 类型指标（简化版）</div>
+    </div>
+    <div class="tp hd" id="tarchive">
+      <div>
+        <h2>📁 成长档案</h2>
+        <p class="desc">每一次对话都是成长的记录。完成 5 步流程后自动保存。</p>
+      </div>
+      <!-- 修复：子标签调用正确的切换函数 -->
+      <div class="subtab">
+        <button class="active" onclick="switchGrowthTab('tab_default')">🏠 主档案</button>
+        <button onclick="switchGrowthTab('tab_mood')">📊 情绪周报</button>
+        <button onclick="switchGrowthTab('tab_trap')">🧠 思维统计</button>
+        <button onclick="switchGrowthTab('tab_timeline')">📅 时间线</button>
+        <button onclick="switchGrowthTab('tab_history')">💬 对话记录</button>
+      </div>
+      <div id="tab_default" class="growth-sub" style="display:block">
+        <div class="cg" id="ac"></div>
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px;color:#7A9E5A;font-size:15px;margin:0 0 8px">✅ 微行动打卡(CBT落地练习)</h3>
+          <div style="display:flex;gap:8px;margin:8px 0">
+            <input id="actInput" placeholder="输入今日小行动" style="flex:1;padding:8px;border:1px solid #C8D5B8;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:all 0.2s">
+            <button onclick="addAct()" style="padding:8px 16px;border:none;border-radius:8px;background:#7A9E5A;color:#fff;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.24s">➕ 添加</button>
+          </div>
+          <div id="actList" style="font-size:13px;margin-top:4px"></div>
+          <div style="margin-top:8px;padding:8px;background:#F2F7ED;border-radius:8px;font-size:13px;color:#5A7A3A">📈 完成率: <span id="actRate">0%</span></div>
+        </div>
+        <div class="br">
+          <div class="bd lk">🔒<span class="bl">—</span></div>
+          <div class="bd lk">🔒<span class="bl">—</span></div>
+          <div class="bd lk">🔒<span class="bl">—</span></div>
+          <div class="bd lk">🔒<span class="bl">—</span></div>
+          <div class="bd lk">🔒<span class="bl">—</span></div>
+        </div>
+      </div>
+      <div id="tab_mood" class="growth-sub">
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px;color:#D4782A;font-size:15px;margin:0 0 8px">📊 本周情绪热力 & 情绪周报</h3>
+          <div id="heatmapBox"></div>
+          <div id="weekReport" style="margin-top:10px;font-size:13px;color:#8B7355;background:#FFF8F0;border-radius:8px;padding:10px"></div>
+        </div>
+      </div>
+      <div id="tab_trap" class="growth-sub">
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px;color:#D4782A;font-size:15px;margin:0 0 8px">🧠 个人思维陷阱统计(CBT认知习惯分析)</h3>
+          <div id="trapChartBox"></div>
+          <div id="trapReport" style="margin-top:8px;font-size:13px;color:#5A3A1A;background:#FFF5EE;border-radius:8px;padding:10px"></div>
+        </div>
+      </div>
+      <div id="tab_timeline" class="growth-sub">
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px;color:#D4782A;font-size:15px;margin:0 0 8px">📅 个人成长时间线</h3>
+          <div style="display:flex;gap:6;margin:8px 0">
+            <input id="tlInput" placeholder="记录今日认知收获" style="flex:1;padding:8px;border:1px solid #F0E3D0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:all 0.2s">
+            <button onclick="addTL()" style="padding:8px 16px;border:none;border-radius:8px;background:#D4782A;color:#fff;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.24s">✏ 记录</button>
+          </div>
+          <div id="tlBox" style="border-left:3px solid #D4782A;padding-left:12px;margin-top:8px;font-size:13px;color:#8B7355"></div>
+        </div>
+      </div>
+      <div id="tab_history" class="growth-sub">
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px;color:#D4782A;font-size:15px;margin:0 0 8px">💬 本地全部对话记录(永久保存本机)</h3>
+          <div id="chatHistoryBox" style="max-height:300px;overflow:auto;border:1px solid #F0E8E0;padding:8px;border-radius:8px;font-size:13px"></div>
+          <button onclick="clearChat()" style="margin-top:8px;padding:6px 14px;border:none;border-radius:8px;background:#C06A20;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.24s">🗑 清空全部对话</button>
+        </div>
+      </div>
+      <div class="tl">设计依据：正强化 · 成长型思维</div>
+    </div>
+  </div>
+</div>
+<script>
+// ==================== 全局常量与存储底层 ====================
+const STORE_KEYS = {
+  moodLogs:"mood_logs",
+  trapStats:"trap_stats",
+  actionCheck:"action_check",
+  chatHistory:"chat_history",
+  growthTimeline:"growth_timeline"
+};
+function getStore(key){
+  const str = localStorage.getItem(key);
+  return str ? JSON.parse(str) : [];
+}
+function setStore(key,data){
+  localStorage.setItem(key, JSON.stringify(data));
+}
+const MOOD_LEVEL = {极低:20,偏低:40,平稳:60,良好:80,极佳:100};
+const TRAP_LIST = ["灾难化思维","绝对化要求","以偏概全","个人化归因","情绪化推理","非黑即白"];
+let coolTimer = null;
+let moodChart = null;
+let trapChart = null;
+// ==================== 全局事件函数 ====================
+window.closeWelcome = function(){
+  document.getElementById("welcomeModal").style.display = "none";
+};
+// 侧边栏大页面切换
+const tabs=["chat","assess","toolbox","mbti","archive"];
+const pt=document.getElementById("pt");
+const themes = {
+    chat:    { w3:'#E8A85E', w4:'#D4782A', w5:'#C06A20', w6:'#A85A18', g4:'#7A9E5A', g5:'#5E8240' },
+    assess:  { w3:'#E08A6A', w4:'#C25B3A', w5:'#A84A2E', w6:'#8B3D24', g4:'#8B7355', g5:'#6E5A42' },
+    toolbox: { w3:'#B4C27A', w4:'#8A9A5B', w5:'#6E8042', w6:'#556633', g4:'#7A9E5A', g5:'#5E8240' },
+    mbti:    { w3:'#B58AA8', w4:'#9B6B8F', w5:'#7D5273', w6:'#603E58', g4:'#8B7355', g5:'#6E5A42' },
+    archive: { w3:'#C9A37A', w4:'#A67C52', w5:'#8B6540', w6:'#6E4F30', g4:'#8B7355', g5:'#6E5A42' }
+};
+function setTheme(name){
+  const t = themes[name] || themes.chat;
+  const root = document.documentElement;
+  root.style.setProperty('--w3', t.w3);
+  root.style.setProperty('--w4', t.w4);
+  root.style.setProperty('--w5', t.w5);
+  root.style.setProperty('--w6', t.w6);
+  root.style.setProperty('--g4', t.g4);
+  root.style.setProperty('--g5', t.g5);
+}
+window.swT = function(n){
+    document.querySelectorAll(".sbtn").forEach(b=>b.classList.toggle("at",b.dataset.t===n));
+    tabs.forEach(t=>document.getElementById("t"+t).classList.toggle("hd",t!==n));
+    pt.textContent={
+        chat:"💬 咨询对话",
+        assess:"📊 适应力测评",
+        toolbox:"🧰 心理工具箱",
+        mbti:"🧩 MBTI性格",
+        archive:"📁 成长档案"
+    }[n];
+    setTheme(n);
+    if(n === "archive"){
+        setTimeout(()=>{
+            renderHeatMap();
+            renderTrapStats();
+        },100);
+    }
+};
+// 成长档案子标签切换
+window.switchGrowthTab = function(id){
+  document.querySelectorAll(".growth-sub").forEach(el=>el.style.display="none");
+  document.getElementById(id).style.display="block";
+  
+  document.querySelectorAll(".subtab button").forEach(btn=>btn.classList.remove("active"));
+  event.target.classList.add("active");
+
+  if(id === "tab_mood") setTimeout(()=>renderHeatMap(),50);
+  if(id === "tab_trap") setTimeout(()=>renderTrapStats(),50);
+};
+// ==================== 对话核心逻辑 ====================
+const API_KEY = "sk-2bc3317b447147f4a49d2df2430fa366";
+const API_URL = "https://api.deepseek.com/v1/chat/completions";
+let ch, ip, snd, sds;
+let st = 1, h = [], messages = [];
+const PH = {
+    1:"请描述具体事件",
+    2:"请选择情绪+分数",
+    3:"请说出你当下的想法",
+    4:"请写下你对这个问题的想法",
+    5:"选一个微行动试试吧"
+};
+const ws1 = "你好，我是青途AI，衔接期认知重构助手。\n\n我们会通过5步CBT方法帮你梳理情绪，现在从第一步开始。\n\n✅ 请客观描述一件近期让你情绪波动的事，只讲事实，不用加入你的感受和想法。\n\n参考：高考分数低于预期、担心大学宿舍相处、暑假感到迷茫\n\n可以和我说说你的情况吗";
+function ts(){
+    const n=new Date();
+    return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+}
+function sd(){
+    setTimeout(()=>ch.scrollTop=ch.scrollHeight,60);
+}
+function am(text,who,ih){
+    const dv=document.createElement("div");
+    dv.className="msg "+(who==="bot"?"bt":"us");
+    dv.innerHTML=`<div class='av'>${who==="bot"?"🌱":"🙂"}</div><div>
+        ${ih?`<div class='bub'>${text}</div>`:`<div class='bub'>${text.replace(/\n/g,"<br>")}</div>`}
+        <div style='font-size:10px;color:#bbb'>${ts()}</div></div>`;
+    ch.appendChild(dv);
+    sd();
+    saveChatMsg(who, text);
+}
+async function hs(){
+    const t=ip.value.trim();
+    if(!t) return;
+    if(/自伤|自杀|想死|活不下去|伤害自己|不想活了/.test(t)){
+        am(t,"user");
+        am("⚠️ 如果你正处于严重的情绪危机，请立即拨打 <strong>12355</strong> 青少年热线。","bot",true);
+        ip.value="";
+        ip.style.height="auto";
+        return;
+    }
+    if(/结束|退出|停止|不聊了/.test(t)){
+        am(t,"user");
+        am("好的，随时再来梳理情绪 🌱","bot");
+        ip.value="";
+        ip.style.height="auto";
+        return;
+    }
+    am(t,"user");
+    ip.value="";
+    ip.style.height="auto";
+    snd.disabled = true;
+    ip.disabled = true;
+    messages.push({role: "user", content: t});
+    h.push({step:st});
+    try {
+        const stepRules = [
+            "第1步：客观描述事件，剥离主观情绪，信息完整输出【进入下一步】",
+            "第2步：引导用户给出情绪名称+0~10分值，回复末尾【进入下一步】，获取分数后调用checkMoodAndCool(分数*10)",
+            "第3步：识别用户思维类型（灾难化/绝对化/以偏概全/个人化/情绪化/非黑即白），单独一行输出[思维：XXX]，自动记录，随后【进入下一步】",
+            "第4步：通过温和苏格拉底提问引导反思，结束输出【进入下一步】",
+            "第5步：输出2-3条可落地微行动，末尾单独一行【训练完成】"
+        ];
+        const systemPrompt = `你是温和中立青少年CBT自助助手，严格分阶段，禁止跳步。
+硬性：
+1. 信息不足持续追问；
+2. 情绪分值×10存入情绪周报；
+3. 识别到思维陷阱固定标注[思维：XX]；
+4. 情绪高分自动触发478冷却弹窗；
+当前阶段指引：${stepRules[st-1]}`;
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "deepseek-v4-pro",
+                messages: [{ role: "system", content: systemPrompt }, ...messages],
+                temperature: 0.7,
+                stream: false
+            })
+        });
+        if(!res.ok) throw new Error("接口异常");
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+        const next_step = reply.includes("【进入下一步】");
+        const training_done = reply.includes("【训练完成】");
+        let trapName = "";
+        TRAP_LIST.forEach(name=>{
+            if(reply.includes(`[思维：${name}]`)) trapName = name;
+        });
+        const cleanReply = reply.replace(/【进入下一步】|【训练完成】|\[思维：.*\]/g, "").trim();
+        am(cleanReply, "bot");
+        messages.push({role: "assistant", content: cleanReply});
+        if(trapName) recordTrap(trapName);
+        if(next_step && st < 5){
+            st = st + 1;
+            us(st);
+        }
+        if(training_done){
+            am("✅ CBT训练结束，可前往成长档案查看情绪周报、打卡微行动、记录成长时间线","bot",true);
+        }
+    } catch (err) {
+        console.error(err);
+        am("接口服务暂时异常，请稍后重试。","bot");
+    } finally {
+        snd.disabled = false;
+        ip.disabled = false;
+    }
+}
+function us(n){
+    st = n;
+    ip.placeholder=PH[n];
+    document.querySelectorAll(".sd").forEach(el=>el.classList.remove("active"));
+    document.querySelectorAll(".sd")[n-1].classList.add("active");
+    const sg=document.getElementById("stepGuide");
+    const sgt=document.getElementById("stepGuideText");
+    if(sg&&sgt){
+        const tips={
+            1:'📝 客观描述事件 | 只讲事实，不加感受 | 示例：高考成绩比预估低30分',
+            2:'😶 描述情绪并给出0-10分，分数会存入情绪周报',
+            3:'🧠 AI自动识别你的非理性思维并统计',
+            4:'💭 回答内心真实想法，AI引导思辨',
+            5:'✅ 生成落地微行动，可去档案打卡'
+        };
+        sgt.innerHTML=tips[n];
+    }
+}
+// ==================== 图表模块 ====================
+function initHeatMap(){
+    const box = document.getElementById("heatmapBox");
+    if(!box || !window.echarts) return;
+    if(moodChart) moodChart.dispose();
+    moodChart = echarts.init(box);
+    const logs = getStore(STORE_KEYS.moodLogs);
+    const days = ["周一","周二","周三","周四","周五","周六","周日"];
+    const data = [];
+    for(let i=0;i<7;i++){
+      const d = new Date();
+      d.setDate(d.getDate()-d.getDay()+i);
+      const dStr = d.toLocaleDateString();
+      const find = logs.find(x=>x.date===dStr);
+      data.push([days[i],"全天",find?.score||50]);
+    }
+    const opt = {
+        tooltip:{trigger:"item"},
+        visualMap:{min:0,max:100,inRange:{color:["#e6edf7","#b2d8b2","#ffdd80","#ff7060"]},show:false},
+        xAxis:{type:"category",data:days,axisLine:{lineStyle:{color:"#ddd"}}},
+        yAxis:{type:"category",data:["全天"],axisLine:{lineStyle:{color:"#ddd"}}},
+        series:[{type:"heatmap",data:data,label:{show:true,fontSize:12}}]
+    };
+    moodChart.setOption(opt);
+    moodChart.resize();
+    const avg = data.reduce((sum,item)=>sum+item[2],0)/7;
+    document.getElementById("weekReport").innerText = `本周情绪平均分：${avg.toFixed(1)}，${avg<40?"情绪偏低建议478冷却":"情绪平稳良好"}`;
+}
+function renderHeatMap(){ initHeatMap(); }
+function initTrapChart(){
+    const box = document.getElementById("trapChartBox");
+    if(!box || !window.echarts) return;
+    if(trapChart) trapChart.dispose();
+    trapChart = echarts.init(box);
+    const data = getStore(STORE_KEYS.trapStats);
+    const opt = {
+        tooltip:{trigger:"axis"},
+        xAxis:{type:"category",data:data.map(i=>i.name),axisLabel:{rotate:15,fontSize:11}},
+        yAxis:{type:"value",minInterval:1},
+        series:[{type:"bar",data:data.map(i=>i.count),itemStyle:{color:"#D4782A",borderRadius:[4,4,0,0]}}],
+        title:{text:"你的高频认知偏差",left:"center",textStyle:{fontSize:14}}
+    };
+    trapChart.setOption(opt);
+    trapChart.resize();
+    if(data.length===0){
+        document.getElementById("trapReport").innerText = "暂无思维记录，完成CBT对话自动统计";
+    }else{
+        const top = data.sort((a,b)=>b.count-a.count)[0];
+        document.getElementById("trapReport").innerText = `你最频繁的思维陷阱：${top.name}，出现${top.count}次`;
+    }
+}
+function renderTrapStats(){ initTrapChart(); }
+window.addEventListener("resize",()=>{
+    if(moodChart) moodChart.resize();
+    if(trapChart) trapChart.resize();
+});
+// ==================== 情绪存储与冷却 ====================
+function saveDailyMood(score){
+  let logs = getStore(STORE_KEYS.moodLogs);
+  const today = new Date().toLocaleDateString();
+  logs = logs.filter(i=>i.date!==today);
+  logs.push({date:today,score:score,ts:Date.now()});
+  setStore(STORE_KEYS.moodLogs, logs);
+  renderHeatMap();
+}
+function recordTrap(name){
+  let list = getStore(STORE_KEYS.trapStats);
+  const item = list.find(x=>x.name===name);
+  item?item.count++:list.push({name,count:1});
+  setStore(STORE_KEYS.trapStats, list);
+  renderTrapStats();
+}
+function checkMoodAndCool(score){
+  saveDailyMood(score);
+  renderHeatMap();
+  renderTrapStats();
+  if(score >=75){
+    document.getElementById("cool_modal").style.display = "flex";
+    startAutoCoolDown();
+  }
+}
+function startAutoCoolDown(){
+  clearInterval(coolTimer);
+  let phase = 0;
+  const steps = ["吸气4秒","屏息7秒","呼气8秒"];
+  let sec = [4,7,8][phase];
+  const timerDom = document.getElementById("cool_timer");
+  timerDom.innerText = steps[phase] + "："+sec+"s";
+  coolTimer = setInterval(()=>{
+    sec--;
+    timerDom.innerText = steps[phase] + "："+sec+"s";
+    if(sec <= 0){
+      phase++;
+      if(phase >=3){
+        clearInterval(coolTimer);
+        timerDom.innerText = "呼吸冷却完成";
+        setTimeout(()=>document.getElementById("cool_modal").style.display="none",1200);
+        return;
+      }
+      sec = [4,7,8][phase];
+    }
+  },1000);
+}
+// ==================== 微行动打卡 ====================
+window.addAct = function(){
+  const val = document.getElementById("actInput").value.trim();
+  if(!val) return;
+  const arr = getStore(STORE_KEYS.actionCheck);
+  arr.push({id:Date.now(),content:val,done:false,date:new Date().toLocaleDateString()});
+  setStore(STORE_KEYS.actionCheck,arr);
+  document.getElementById("actInput").value="";
+  renderAct();
+};
+window.toggleAct = function(id){
+  const arr = getStore(STORE_KEYS.actionCheck);
+  const obj = arr.find(x=>x.id===id);
+  if(obj) obj.done = !obj.done;
+  setStore(STORE_KEYS.actionCheck,arr);
+  renderAct();
+};
+function renderAct(){
+  const arr = getStore(STORE_KEYS.actionCheck);
+  let html = "";
+  let finish = 0;
+  arr.forEach(i=>{
+    if(i.done) finish++;
+    html += `<div style="display:flex;gap:6px;align-items:center;margin:4px 0">
+    <input type="checkbox" onchange="toggleAct(${i.id})" ${i.done?"checked":""}>
+    <span style="${i.done?'text-decoration:line-through;color:#aaa':''}">${i.content}</span>
+    </div>`;
+  });
+  document.getElementById("actList").innerHTML = html||"暂无行动计划";
+  const rate = arr.length?((finish/arr.length)*100).toFixed(1):0;
+  document.getElementById("actRate").innerText = rate+"%";
+}
+// ==================== 成长时间线 ====================
+window.addTL = function(){
+  const val = document.getElementById("tlInput").value.trim();
+  if(!val) return;
+  const arr = getStore(STORE_KEYS.growthTimeline);
+  arr.unshift({content:val,time:new Date().toLocaleString()});
+  setStore(STORE_KEYS.growthTimeline,arr);
+  document.getElementById("tlInput").value="";
+  renderTL();
+};
+function renderTL(){
+  const arr = getStore(STORE_KEYS.growthTimeline);
+  let html = "";
+  arr.forEach(i=>{
+    html += `<div style="margin:6px 0">
+    <small style="color:#8B7355">${i.time}</small>
+    <div style="margin-top:2px">${i.content}</div>
+    </div>`;
+  });
+  document.getElementById("tlBox").innerHTML = html||"暂无成长记录";
+}
+// ==================== 对话历史 ====================
+function saveChatMsg(role,text){
+  const arr = getStore(STORE_KEYS.chatHistory);
+  arr.push({role,text,time:new Date().toLocaleString()});
+  setStore(STORE_KEYS.chatHistory,arr);
+  renderChat();
+}
+function renderChat(){
+  const arr = getStore(STORE_KEYS.chatHistory);
+  let html = "";
+  arr.forEach(i=>{
+    const bg = i.role==="bot"?"#FDF0E3":"#FFF8F0";
+    html += `<div style="background:${bg};padding:8px;border-radius:8px;margin:4px 0">
+    <small style="color:#aaa">${i.time} ${i.role==="bot"?"AI":"我"}</small>
+    <div style="margin-top:2px">${i.text}</div>
+    </div>`;
+  });
+  document.getElementById("chatHistoryBox").innerHTML = html||"暂无对话记录";
+}
+window.clearChat = function(){
+  setStore(STORE_KEYS.chatHistory,[]);
+  renderChat();
+};
+// ==================== 适应力测评 ====================
+(function(){
+const ct = document.getElementById('aq');
+if(!ct)return;
+const qs=[
+    {dim:'🔍 生涯关注', q:'你是否主动了解过大学的专业课程和就业方向？',os:['完全不了解','了解一点','大概了解','比较清楚','非常清楚'], scores:[1,2,3,4,5]},
+    {dim:'🎯 生涯控制', q:'你相信自己能通过努力影响未来的发展方向吗？',os:['完全不信','不太信','一般','比较相信','非常相信'], scores:[1,2,3,4,5]},
+    {dim:'🧗 生涯好奇', q:'你愿意尝试新的学习领域、社团活动和社交圈吗？',os:['完全不想','不太想','一般','比较想','非常想'], scores:[1,2,3,4,5]},
+    {dim:'💪 生涯自信', q:'面对新环境的不确定性，你相信自己能应对吗？',os:['完全没信心','不太有','一般','比较有','非常有'], scores:[1,2,3,4,5]}
+];
+window.assessAnswers = {};
+qs.forEach((q,i)=>{
+    const d=document.createElement('div');
+    d.className='cd';
+    let h='<div class="ctt">'+q.dim+'</div><div style="font-weight:600;margin-bottom:8px;font-size:14px">'+(i+1)+'. '+q.q+'</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+    q.os.forEach((o,j)=>{
+        h+='<button data-i="'+i+'" data-v="'+j+'" style="padding:5px 14px;border:1.5px solid #FBE3CA;border-radius:20px;background:#fffcf9;cursor:pointer;font-size:12px;font-family:inherit;transition:all 0.24s">'+o+'</button>';
+    });
+    h+='</div>';
+    d.innerHTML=h;
+    ct.appendChild(d);
+});
+ct.addEventListener('click',e=>{
+    const b=e.target.closest('button');
+    if(!b)return;
+    const i=b.dataset.i;
+    b.parentElement.querySelectorAll('button').forEach(x=>{
+        x.style.background='#fffcf9';x.style.borderColor='#FBE3CA';x.style.color='#8B7355';
+    });
+    b.style.background='var(--w4)';b.style.borderColor='var(--w4)';b.style.color='#fff';
+    window.assessAnswers[i] = parseInt(b.dataset.v);
+});
+})();
+window.submitAssess = function(){
+    const answers = window.assessAnswers || {};
+    const keys = Object.keys(answers);
+    if(keys.length < 4){
+        alert('请完成所有4道测评题目');
+        return;
+    }
+    const dims = ['🔍 生涯关注','🎯 生涯控制','🧗 生涯好奇','💪 生涯自信'];
+    const scores = [answers[0], answers[1], answers[2], answers[3]];
+    const total = scores.reduce((a,b)=>a+b, 0);
+    const avg = (total / 4).toFixed(1);
+    const tips = [];
+    scores.forEach((s,i)=>{
+        if(s <= 2) tips.push(`${dims[i]}：得分偏低，建议多使用心理工具箱练习`);
+        else if(s <= 3) tips.push(`${dims[i]}：中等水平，仍有提升空间`);
+        else tips.push(`${dims[i]}：表现良好，继续保持`);
+    });
+    let level = '';
+    if(avg >= 4) level = '🌟 整体适应力优秀';
+    else if(avg >= 3) level = '🌱 适应力中等';
+    else level = '💪 需要加强环境适应练习';
+    let html = `<div style="font-weight:bold;font-size:16px;color:var(--g5)">测评结果</div><p style="margin:6px 0">${level}，平均分：${avg}</p><div>${tips.join("<br>")}</div>`;
+    const r = document.getElementById('assessResult');
+    const btn = document.getElementById('assessSubmit');
+    r.style.display = 'block';
+    r.innerHTML = html;
+    btn.style.display = 'none';
+};
+// 档案静态卡片
+(function(){
+const ct=document.getElementById('ac');
+if(!ct)return;
+const items=[
+    {ic:'📅',tt:'对话记录',de:'全部对话本地永久存储',sc:'LocalStorage存储'},
+    {ic:'📈',tt:'情绪趋势',de:'每周热力图表可视化',sc:'自动统计'},
+    {ic:'🏆',tt:'成就徽章',de:'完成完整CBT解锁',sc:'暂未解锁'},
+    {ic:'📖',tt:'反思笔记',de:'时间线面板记录感悟',sc:'手动记录'}
+];
+items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='cd';
+    let h='<div class="ctt">'+it.ic+' '+it.tt+'</div><div class="cdd">'+it.de+'</div>';
+    if(it.sc) h+='<div class="csc">📌 '+it.sc+'</div>';
+    d.innerHTML=h;
+    ct.appendChild(d);
+});
+})();
+// ==================== MBTI测评 ====================
+(function(){
+const ct = document.getElementById('mbtiq');
+if(!ct)return;
+const qs = [
+  {dim:'E/I',q:'周末你更喜欢？',a:'和朋友聚会',b:'独处',ta:'E',tb:'I'},
+  {dim:'E/I',q:'陌生场合？',a:'主动社交',b:'等人搭话',ta:'E',tb:'I'},
+  {dim:'E/I',q:'说话习惯？',a:'边说边想',b:'想好再说',ta:'E',tb:'I'},
+  {dim:'S/N',q:'关注？',a:'现实细节',b:'未来想象',ta:'S',tb:'N'},
+  {dim:'S/N',q:'看电影？',a:'剧情逻辑',b:'深层寓意',ta:'S',tb:'N'},
+  {dim:'S/N',q:'擅长？',a:'按计划执行',b:'创意构思',ta:'S',tb:'N'},
+  {dim:'T/F',q:'决策依据？',a:'逻辑',b:'感受',ta:'T',tb:'F'},
+  {dim:'T/F',q:'朋友倾诉？',a:'分析问题',b:'先共情',ta:'T',tb:'F'},
+  {dim:'T/F',q:'评判标准？',a:'对错公平',b:'人情',ta:'T',tb:'F'},
+  {dim:'J/P',q:'桌面？',a:'整齐',b:'随性',ta:'J',tb:'P'},
+  {dim:'J/P',q:'计划？',a:'提前规划',b:'灵活',ta:'J',tb:'P'},
+  {dim:'J/P',q:'出门？',a:'早到',b:'卡点',ta:'J',tb:'P'}
+];
+window.mbtiAnswers = {};
+qs.forEach((q,i)=>{
+  const d=document.createElement('div');
+  d.className='cd';
+  d.innerHTML=`<div class="ctt">${i+1}. [${q.dim}]</div>
+    <div style="font-weight:600;margin-bottom:10px;font-size:14px">${q.q}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button data-i="${i}" data-v="${q.ta}" class="mbti-btn" style="flex:1;min-width:120px;padding:8px 12px;border:1.5px solid #FBE3CA;border-radius:10px;background:#fffcf9;cursor:pointer;font-size:13px;text-align:left;transition:all 0.24s">A. ${q.a}</button>
+    <button data-i="${i}" data-v="${q.tb}" class="mbti-btn" style="flex:1;min-width:120px;padding:8px 12px;border:1.5px solid #FBE3CA;border-radius:10px;background:#fffcf9;cursor:pointer;font-size:13px;text-align:left;transition:all 0.24s">B. ${q.b}</button>
+    </div><div style="font-size:10px;color:#bbb;margin-top:4px;text-align:right" id="mbti_s_${i}">未选择</div>`;
+  ct.appendChild(d);
+});
+ct.addEventListener('click',e=>{
+  const b=e.target.closest('.mbti-btn');
+  if(!b||!b.dataset.i)return;
+  const i=b.dataset.i;
+  b.parentElement.querySelectorAll('.mbti-btn').forEach(x=>{
+    x.style.background='#fffcf9';x.style.borderColor='#FBE3CA';x.style.color='#8B7355';
+  });
+  b.style.background='var(--w4)';b.style.borderColor='var(--w4)';b.style.color='#fff';
+  window.mbtiAnswers[i]=b.dataset.v;
+  document.getElementById("mbti_s_"+i).textContent='✅ 已选择';
+});
+})();
+window.submitMBTI = function(){
+  const a=window.mbtiAnswers||{};
+  if(Object.keys(a).length<12){alert("请完成全部12道MBTI题目");return;}
+  const s={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+  for(let i=0;i<12;i++) s[a[i]]++;
+  let t = (s.E>s.I?"E":"I")+(s.S>s.N?"S":"N")+(s.T>s.F?"T":"F")+(s.J>s.P?"J":"P");
+  const desc={
+    ISTJ:"严谨检查者",ISFJ:"体贴保护者",INFJ:"远见提倡者",INTJ:"战略家",
+    ISTP:"动手者",ISFP:"敏感艺术家",INFP:"调停者",INTP:"思考者",
+    ESTP:"行动者",ESFP:"表演者",ENFP:"倡导者",ENTP:"辩论家",
+    ESTJ:"管理者",ESFJ:"照料者",ENFJ:"领导者",ENTJ:"指挥官"
+  };
+  let html=`<h3 style="color:var(--g5)">你的性格类型：${t}</h3><p style="margin-top:6px">${desc[t]||"未知类型"}</p>`;
+  const r=document.getElementById('mbtiResult');
+  const btn=document.getElementById('mbtiSubmit');
+  r.style.display='block';r.innerHTML=html;btn.style.display='none';
+};
+// ==================== 工具箱 & 478呼吸 ====================
+(function(){
+const ct=document.getElementById('tc');
+if(!ct)return;
+const tools=[
+  {ic:'🧘',tt:'478呼吸法',de:'吸气4屏息7呼气8，快速平复焦虑',sc:'情绪高分自动弹窗'},
+  {ic:'📝',tt:'情绪日记',de:'记录事件情绪与想法',sc:'长期提升觉察'},
+  {ic:'🔄',tt:'认知重构三问',de:'证据/反证/其他可能性',sc:'矫正负向思维'},
+  {ic:'🌿',tt:'五分钟正念',de:'专注呼吸接纳杂念',sc:'日常减压放松'}
+];
+tools.forEach(t=>{
+  const d=document.createElement('div');
+  d.className='cd';
+  d.innerHTML=`<div class="ctt">${t.ic} ${t.tt}</div><div class="cdd">${t.de}</div><div class="csc">🎯 ${t.sc}</div>`;
+  ct.appendChild(d);
+  if(t.tt==="478呼吸法"){
+    const bb=document.createElement('div');
+    bb.className='bb';
+    bb.innerHTML='<div id="bc" class="bcir"></div><div id="bp" class="bp">准备就绪</div><div id="bt" style="font-size:13px;color:#8B7355">点击开始478呼吸</div><button id="bBtn" onclick="startB()" class="bst">开始呼吸</button>';
+    d.appendChild(bb);
+  }
+});
+})();
+let brRunning=false;
+window.startB=function(){
+  if(brRunning)return;
+  const btn=document.getElementById('bBtn'),c=document.getElementById('bc'),p=document.getElementById('bp');
+  if(!btn)return;
+  brRunning=true;
+  btn.disabled=true;
+  const pp=[{l:'吸气',s:4,c:'ih'},{l:'屏息',s:7,c:'hd'},{l:'呼气',s:8,c:'ex'}];
+  let rd=0,pi=0,sec=pp[pi].s;
+  p.textContent=pp[pi].l+" "+sec+"s";
+  const timer=setInterval(()=>{
+    sec--;
+    p.textContent=pp[pi].l+" "+sec+"s";
+    c.className="bcir "+pp[pi].c;
+    if(sec<=0){
+      pi++;
+      if(pi>=3){
+        pi=0;
+        rd++;
+      }
+      if(rd>=3){
+        clearInterval(timer);
+        brRunning=false;
+        p.textContent="练习完成";
+        btn.disabled=false;
+        return;
+      }
+      sec=pp[pi].s;
+    }
+  },1000);
+};
+// ==================== 页面入口 ====================
+window.onload = function(){
+  ch = document.getElementById("ch");
+  ip = document.getElementById("inp");
+  snd = document.getElementById("snd");
+  sds = document.querySelectorAll(".sd");
+  am(ws1, "bot");
+  us(1);
+  snd.onclick = hs;
+  ip.addEventListener("keydown", e=>{
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      hs();
+    }
+  });
+  setTheme("chat");
+  renderHeatMap();
+  renderTrapStats();
+  renderAct();
+  renderTL();
+  renderChat();
+};
+</script>
+</body>
+</html>
